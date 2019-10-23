@@ -135,7 +135,7 @@ function onNodeAppend(e) {
     				say(learnedThings[key]);
     			}
     			else {
-    				say("Ughh, I think I forgot what it's that supposed to do.");
+    				say("Ughh...");
     			}
     		}
     		else {
