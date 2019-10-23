@@ -8,6 +8,7 @@ var MAX_VOTE_FOR_ROOM = 3;
 
 var DO_YOU_EVEN_MATH = 'https://i.imgur.com/UBoD276.png';
 var DUMB_FUCK_JIUCE = 'https://i.kym-cdn.com/entries/icons/original/000/027/642/dumb.jpg';
+var WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
 
 function onNodeAppend(e) {
     var usernameContainer = $(e.path).filter('.monologue').find('.signature .username')[0];
@@ -42,7 +43,7 @@ function onNodeAppend(e) {
  		return;
 
  	if (userId == '-2') {
- 		say('hur durr');
+ 		say(`:${messageId} shut up`);
  	}
  	
 	if (message.includes('stop')) {
@@ -57,12 +58,21 @@ function onNodeAppend(e) {
     	}
     	else if (message.startsWith('eval')) {
     		message = message.replace('eval', '').trim();
-    		if (message.includes('window.') || message.includes('document.')) {
+    		if (message.includes('while') ||
+    			message.includes('if')) {
     			say("I don't think I would like that");
     		}
     		else {
-	    		var result = eval(message);
-	    		say(result);
+    			try {
+		    		var result = safeEval(message);
+		    		if (result != null || result != undefined || result != '')
+		    			say(result);
+		    		else
+		    			say(WAT);
+		    	}
+		    	catch (ex) {
+		    		say('hurr durr error');
+		    	}
     		}
     	}
     	else if (message.startsWith('learn')) {
@@ -74,7 +84,7 @@ function onNodeAppend(e) {
     			learnedThings[key] = value;
     			localStorage['learnedThings'] = JSON.stringify(learnedThings);
     			console.log(learnedThings);
-    			say(`@${displayName} did you really teach me to say ${key}? I learned it the hard way`);
+    			say(`:${messageId} haha! what does ${key} mean?`);
     		}
     		else {
     			say('what am I suppose to learn?');
@@ -139,7 +149,7 @@ function onNodeAppend(e) {
     			}
     		}
     		else {
-    			say("I don't know what you said but it sounds delicious.");
+    			say("huh?");
     		}
     	}
     }
@@ -211,3 +221,35 @@ function tryParseInt(str) {
             return oldJSONStringify(input);
     };
 })();
+
+
+function safeEval(code) {
+	// create our own local versions of window and document with limited functionality
+	var locals = {
+	    window: {
+	    },
+	    document: {
+	    }
+	};
+
+	var that = Object.create(null); // create our own this object for the user code
+	createSandbox(code, that, locals)(); // create a sandbox
+
+	function createSandbox(code, that, locals) {
+	    var params = []; // the names of local variables
+	    var args = []; // the local variables
+
+	    for (var param in locals) {
+	        if (locals.hasOwnProperty(param)) {
+	            args.push(locals[param]);
+	            params.push(param);
+	        }
+	    }
+
+	    var context = Array.prototype.concat.call(that, params, code); // create the parameter list for the sandbox
+	    var sandbox = new (Function.prototype.bind.apply(Function, context)); // create the sandbox function
+	    context = Array.prototype.concat.call(that, args); // create the argument list for the sandbox
+
+	    return Function.prototype.bind.apply(sandbox, context); // bind the local variables to the sandbox
+	}
+}
