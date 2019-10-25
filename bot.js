@@ -7,7 +7,7 @@ var annoyingUsers = JSON.parse(localStorage['annoyingUsers'] != '' ? localStorag
 var MAX_VOTE_FOR_ROOM = 3;
 
 var DO_YOU_EVEN_MATH = 'https://i.imgur.com/UBoD276.png';
-var DUMB_FUCK_JIUCE = 'https://i.kym-cdn.com/entries/icons/original/000/027/642/dumb.jpg';
+var DUMB_FUCK_JUICE = 'https://i.kym-cdn.com/entries/icons/original/000/027/642/dumb.jpg';
 var WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
 
 function onNodeAppend(e) {
@@ -43,15 +43,18 @@ function onNodeAppend(e) {
  		return;
 
  	if (userId == '-2') {
- 		say(`:${messageId} shut up`);
+ 		if (Math.random() > 0.3)
+ 			say(`:${messageId} shut up`);
+ 		else
+ 			say('hurr durr');
  	}
  	
 	if (message.includes('stop')) {
-		say(`@${displayName} hammer time!`);
+		say(`@${displayName.replaceAll(' ', '')} hammer time!`);
 	}
 
-    if (message.startsWith('@Patrick')) {
-    	message = message.replace('@Patrick', '').trim();
+    if (message.includes('@Patrick')) {
+    	message = message.replaceAll('@Patrick', '').trim();
     	if (message.startsWith('say')) {
     		var reply = message.replace('say', '').trim();
     		say(reply);
@@ -83,7 +86,6 @@ function onNodeAppend(e) {
     			var value = parts[1];
     			learnedThings[key] = value;
     			localStorage['learnedThings'] = JSON.stringify(learnedThings);
-    			console.log(learnedThings);
     			say(`:${messageId} haha! what does ${key} mean?`);
     		}
     		else {
@@ -116,7 +118,6 @@ function onNodeAppend(e) {
 				var score = annoyingUsers[i] != null ? Object.keys(annoyingUsers[i]).length : 0;
 				reply += `name: ${name}, score: ${score}\n`;
 			}
-			console.log(annoyingUsers);
     		if (reply != '') {
     			say(reply);
     		}
@@ -131,10 +132,10 @@ function onNodeAppend(e) {
 	    		annoyingUsers[user] = annoyingUsers[user] || [];
 	    		annoyingUsers[user][userId] = 1;
     			localStorage['annoyingUsers'] = JSON.stringify(annoyingUsers);
-    			say(`@${user} ${displayName} voted you as annoying user.`);
+    			say(`@${user.replaceAll(' ', '')} ${displayName} voted you as annoying user.`);
     		}
     		else {
-    			say(DUMB_FUCK_JIUCE);
+    			say(DUMB_FUCK_JUICE);
     		}
     	}
     	else {
@@ -145,7 +146,7 @@ function onNodeAppend(e) {
     				say(learnedThings[key]);
     			}
     			else {
-    				say("Ughh...");
+    				say(`:${messageId} ` + toRandomCase(message));
     			}
     		}
     		else {
@@ -153,13 +154,24 @@ function onNodeAppend(e) {
     		}
     	}
     }
-    console.log('userId: ' + userId);
-    console.log('messageId: ' + messageId);
-    console.log('message: ' + message);
-    console.log('displayName: ' + displayName);
+    // console.log('userId: ' + userId);
+    // console.log('messageId: ' + messageId);
+    // console.log('message: ' + message);
+    // console.log('displayName: ' + displayName);
 }
 
 main.addEventListener("DOMNodeInserted", onNodeAppend);
+
+function toRandomCase(text) {
+	if (text == null|| text == undefined)
+		return text;
+
+	var newText = '';
+	for(var i = 0;i < text.length; ++i) {
+		newText += i % 2 != 0 ? text[i].toUpperCase() : text[i].toLowerCase();
+	}
+	return newText;
+}
 
 function say(message) {
 	$('#input').val(message);
@@ -181,7 +193,7 @@ function getMessage(content) {
 		var href = $(e).attr('href');
 
 		if (href != null) {
-			message += `[${$(e).text()}](${href})`;
+			message += href; // `[${$(e).text()}](${href})`;
 		}
 		else {
 			message += $(e).text();
@@ -253,3 +265,8 @@ function safeEval(code) {
 	    return Function.prototype.bind.apply(sandbox, context); // bind the local variables to the sandbox
 	}
 }
+
+String.prototype.replaceAll = function(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+};
