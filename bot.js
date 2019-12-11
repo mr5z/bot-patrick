@@ -9,6 +9,7 @@ var MAX_VOTE_FOR_ROOM = 3;
 var DO_YOU_EVEN_MATH = 'https://i.imgur.com/UBoD276.png';
 var DUMB_FUCK_JUICE = 'https://i.kym-cdn.com/entries/icons/original/000/027/642/dumb.jpg';
 var WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
+const PING_TRIGGER = 'PatrickStar';
 
 function onNodeAppend(e) {
     var usernameContainer = $(e.path).filter('.monologue').find('.signature .username')[0];
@@ -53,8 +54,8 @@ function onNodeAppend(e) {
 		say(`@${displayName.replaceAll(' ', '')} hammer time!`);
 	}
 
-    if (message.includes('Patrick, ')) {
-    	message = message.replaceAll('Patrick, ', '').trim();
+    if (message.includes(PING_TRIGGER)) {
+    	message = message.replaceAll(PING_TRIGGER, '').trim();
     	if (message.startsWith('say')) {
     		var reply = message.replace('say', '').trim();
     		say(reply);
