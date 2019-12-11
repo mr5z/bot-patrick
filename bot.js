@@ -53,8 +53,8 @@ function onNodeAppend(e) {
 		say(`@${displayName.replaceAll(' ', '')} hammer time!`);
 	}
 
-    if (message.includes('@Patrick')) {
-    	message = message.replaceAll('@Patrick', '').trim();
+    if (message.includes('Patrick, ')) {
+    	message = message.replaceAll('Patrick, ', '').trim();
     	if (message.startsWith('say')) {
     		var reply = message.replace('say', '').trim();
     		say(reply);
