@@ -142,6 +142,16 @@ function onNodeAppend(e) {
     			say(DUMB_FUCK_JUICE);
     		}
     	}
+    	else if (message.startsWith('speak')) {
+    		message = message.replace('speak', '').trim();
+    		if (message.length > 0) {
+    			message = encodeUri(message);
+    			say(`https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=ar&engine=g3&name=&pitch=0.5&rate=0.5&volume=1&key=PL3QYYuV&gender=male`);
+    		}
+    		else {
+    			say(DUMB_FUCK_JUICE);
+    		}
+    	}
     	else {
     		var parts = message.split(/ (.+)/).filter(e => e != null && e != '');
     		if (parts.length > 0) {
