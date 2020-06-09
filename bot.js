@@ -58,7 +58,7 @@ function onNodeAppend(e) {
 	}
 
     if (message.includes(PING_TRIGGER)) {
-    	message = message.replaceAll(PING_TRIGGER, '').trim();
+    	message = message.replace(PING_TRIGGER, '').trim();
     	if (message.startsWith('say')) {
     		var reply = message.replace('say', '').trim();
     		say(reply);
@@ -150,7 +150,7 @@ function onNodeAppend(e) {
     				say(learnedThings[key]);
     			}
     			else {
-    				say(toRandomCase(message));
+    				say(toRandomCase(message) + ' 😂');
     			}
     		}
     		else {
