@@ -146,7 +146,7 @@ function onNodeAppend(e) {
     		message = message.replace('speak', '').trim();
     		if (message.length > 0) {
     			message = encodeUri(message);
-    			say(`https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=ar&engine=g3&name=&pitch=0.5&rate=0.5&volume=1&key=PL3QYYuV&gender=male`);
+    			say(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=ar&engine=g3&name=&pitch=0.5&rate=0.5&volume=1&key=PL3QYYuV&gender=male)`);
     		}
     		else {
     			say(DUMB_FUCK_JUICE);
