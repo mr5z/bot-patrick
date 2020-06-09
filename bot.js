@@ -66,12 +66,14 @@ function onNodeAppend(e) {
     	else if (message.startsWith('eval')) {
     		message = message.replace('eval', '').trim();
     		if (message.includes('while') ||
-    			message.includes('if')) {
+    			message.includes('if') ||
+    			message.includes('function') ||
+    			message.includes('})()')) {
     			say("I don't think I would like that");
     		}
     		else {
     			try {
-		    		var result = safeEval(message);
+		    		var result = eval('"use strict";' + message);
 		    		if (result != null || result != undefined || result != '')
 		    			say(result);
 		    		else
@@ -145,7 +147,7 @@ function onNodeAppend(e) {
     	else if (message.startsWith('speak')) {
     		message = message.replace('speak', '').trim();
     		if (message.length > 0) {
-    			message = encodeUri(message);
+    			message = encodeURIComponent(message);
     			say(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=ar&engine=g3&name=&pitch=0.5&rate=0.5&volume=1&key=PL3QYYuV&gender=male)`);
     		}
     		else {
@@ -160,7 +162,7 @@ function onNodeAppend(e) {
     				say(learnedThings[key]);
     			}
     			else {
-    				say(toRandomCase(message) + ' 😂');
+    				say(toRandomCase(message) + ' 🙄');
     			}
     		}
     		else {
