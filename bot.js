@@ -1,3 +1,6 @@
+//localStorage['learnedThings'] = [];
+//localStorage['annoyingUsers'] = [];
+
 var main = document.getElementById('chat');
 var messageIds = [];
 var learnedThings = JSON.parse(localStorage['learnedThings'] != '' ? localStorage['learnedThings'] : '[]');
@@ -87,7 +90,7 @@ function onNodeAppend(e) {
     			var value = parts[1];
     			learnedThings[key] = value;
     			localStorage['learnedThings'] = JSON.stringify(learnedThings);
-    			say(`:${messageId} haha! what does ${key} mean?`);
+    			say(`:${messageId} learnedth ${key}`);
     		}
     		else {
     			say('what am I suppose to learn?');
@@ -123,7 +126,7 @@ function onNodeAppend(e) {
     			say(reply);
     		}
     		else {
-    			say('This room are filled with Angels');
+    			say('This room is filthy');
     		}
 		}
     	else if (message.startsWith('vote annoying user')) {
@@ -147,7 +150,7 @@ function onNodeAppend(e) {
     				say(learnedThings[key]);
     			}
     			else {
-    				say(`:${messageId} ` + toRandomCase(message));
+    				say(toRandomCase(message));
     			}
     		}
     		else {
