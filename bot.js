@@ -92,7 +92,7 @@ async function onNodeAppend(e) {
 		enqueueMessage(`@${displayName.replaceAll(' ', '')} hammer time!`);
 	}
 
-    if (PING_TRIGGERS.filter(s => s.indexOf(message) > -1)) {
+    if (PING_TRIGGERS.findIndex(s => message.includes(s) > -1) {
     	message = message.replace(PING_TRIGGERS, '').trim();
     	if (message.startsWith('say')) {
     		var reply = message.replace('say', '').trim();
