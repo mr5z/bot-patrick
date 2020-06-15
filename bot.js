@@ -2,7 +2,7 @@
 //localStorage['annoyingUsers'] = [];
 
 const main = document.getElementById('chat');
-const messageIds = [];
+var messageIds = [];
 const learnedThings = JSON.parse(localStorage['learnedThings'] != '' ? localStorage['learnedThings'] : '[]');
 const joinedRooms = [];
 const voteCastRoom = [];
@@ -26,7 +26,7 @@ async function dequeueMessages() {
 		if (message !== undefined) {
 			say(message);
 		}
-		await sleep(2000);
+		await sleep(3000);
 	}
 }
 
@@ -197,6 +197,8 @@ function onNodeAppend(e) {
 }
 
 main.addEventListener("DOMNodeInserted", onNodeAppend);
+
+dequeueMessages();
 
 function toRandomCase(text) {
 	if (text == null|| text == undefined)
