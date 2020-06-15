@@ -1,21 +1,25 @@
-//localStorage['learnedThings'] = [];
-//localStorage['annoyingUsers'] = [];
+/*
+ * Created by https://stackoverflow.com/users/2304737
+ *
+ *
+ */
 
 const main = document.getElementById('chat');
-const learnedThings = JSON.parse(localStorage['learnedThings'] != '' ? localStorage['learnedThings'] : '[]');
+const learnedThings = JSON.parse((localStorage['learnedThings'] !== undefined && localStorage['learnedThings'] != '') ? localStorage['learnedThings'] : '[]');
+const annoyingUsers = JSON.parse((localStorage['annoyingUsers'] !== undefined && localStorage['annoyingUsers'] != '') ? localStorage['annoyingUsers'] : '[]');
 const joinedRooms = [];
 const voteCastRoom = [];
-const annoyingUsers = JSON.parse(localStorage['annoyingUsers'] != '' ? localStorage['annoyingUsers'] : '[]');
-const MAX_VOTE_FOR_ROOM = 3;
 
+const MAX_VOTE_FOR_ROOM = 3;
 const DO_YOU_EVEN_MATH = 'https://i.imgur.com/UBoD276.png';
 const DUMB_FUCK_JUICE = 'https://i.kym-cdn.com/entries/icons/original/000/027/642/dumb.jpg';
 const WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
-const PING_TRIGGER = 'PatrickStar';
+const PING_TRIGGERS = ['PatrickStar', 'p3k'];
 
 const messageQueue = [];
 
 var messageIds = [];
+var lastMessage = '';
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -35,7 +39,7 @@ function enqueueMessage(message) {
 	messageQueue.push(message);
 }
 
-function onNodeAppend(e) {
+async function onNodeAppend(e) {
     var usernameContainer = $(e.path).filter('.monologue').find('.signature .username')[0];
     var userId = $(e.path).filter('.monologue').find('.signature').get(-1);
     var messages = $(e.path).filter('.monologue .messages')[0];
@@ -48,10 +52,10 @@ function onNodeAppend(e) {
     var id = parts[1];
 
     if (parts[0] == 'pending') {
-    	console.log(content);
     	var retryContainer = $(content).next();
-    	var retryIn = $(retryContainer).text().match(/(?!You can perform this action again in )[0-9]+(?= second(s*)\.)/)[0];
+    	var retryIn = $(retryContainer).text().match(/(?!You can perform this action again in )[0-9]+(?= second(s*)\.)/);
     	if (retryIn != null) {
+    		retryIn = retryIn[0];
 	    	setTimeout(() => {
 	    		$(retryContainer).children()[0].click();
 	    	}, (retryIn + 1) * 1000);
@@ -88,8 +92,8 @@ function onNodeAppend(e) {
 		enqueueMessage(`@${displayName.replaceAll(' ', '')} hammer time!`);
 	}
 
-    if (message.includes(PING_TRIGGER)) {
-    	message = message.replace(PING_TRIGGER, '').trim();
+    if (PING_TRIGGERS.filter(s => s.indexOf(message) > -1)) {
+    	message = message.replace(PING_TRIGGERS, '').trim();
     	if (message.startsWith('say')) {
     		var reply = message.replace('say', '').trim();
     		enqueueMessage(reply);
@@ -223,8 +227,12 @@ function toRandomCase(text) {
 }
 
 function say(message) {
+	if (lastMessage == message) {
+		message += new Array(Math.random() * 5 | 0).fill('.').join('');
+	}
 	$('#input').val(message);
 	$('#sayit-button').click();
+	lastMessage = message;
 }
 
 function getMessage(content) {
