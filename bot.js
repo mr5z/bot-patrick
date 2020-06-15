@@ -2,7 +2,6 @@
 //localStorage['annoyingUsers'] = [];
 
 const main = document.getElementById('chat');
-var messageIds = [];
 const learnedThings = JSON.parse(localStorage['learnedThings'] != '' ? localStorage['learnedThings'] : '[]');
 const joinedRooms = [];
 const voteCastRoom = [];
@@ -15,6 +14,8 @@ const WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
 const PING_TRIGGER = 'PatrickStar';
 
 const messageQueue = [];
+
+var messageIds = [];
 
 function sleep(ms) {
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -46,7 +47,17 @@ function onNodeAppend(e) {
     var parts = attr.split('-');
     var id = parts[1];
 
-    if (parts[0] == 'pending') return;
+    if (parts[0] == 'pending') {
+    	console.log(content);
+    	var retryContainer = $(content).next();
+    	var retryIn = $(retryContainer).text().match(/(?!You can perform this action again in )[0-9]+(?= second(s*)\.)/)[0];
+    	if (retryIn != null) {
+	    	setTimeout(() => {
+	    		$(retryContainer).children()[0].click();
+	    	}, (retryIn + 1) * 1000);
+    	}
+    	return;
+    }
 
     var messageId = attr.split('-')[1];
 
