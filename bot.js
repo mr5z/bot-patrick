@@ -92,8 +92,10 @@ async function onNodeAppend(e) {
 		enqueueMessage(`@${displayName.replaceAll(' ', '')} hammer time!`);
 	}
 
-    if (PING_TRIGGERS.findIndex(s => message.includes(s) > -1)) {
-    	message = message.replace(PING_TRIGGERS, '').trim();
+    if (PING_TRIGGERS.findIndex(s => message.indexOf(s) > -1) > - 1) {
+    	for(var i = 0;i < PING_TRIGGERS.length; ++i) {
+    		message = message.replace(PING_TRIGGERS[i], '').trim();
+    	}
     	if (message.startsWith('say')) {
     		var reply = message.replace('say', '').trim();
     		enqueueMessage(reply);
@@ -183,7 +185,7 @@ async function onNodeAppend(e) {
     		message = message.replace('speak', '').trim();
     		if (message.length > 0) {
     			message = encodeURIComponent(message);
-    			enqueueMessage(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=ar&engine=g3&name=&pitch=0.5&rate=0.5&volume=1&key=PL3QYYuV&gender=male)`);
+    			enqueueMessage(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=kn&engine=g3&name=&pitch=0.1&rate=0.5&volume=1&key=PL3QYYuV&gender=male)`);
     		}
     		else {
     			enqueueMessage(DUMB_FUCK_JUICE);
@@ -197,7 +199,7 @@ async function onNodeAppend(e) {
     				enqueueMessage(learnedThings[key]);
     			}
     			else {
-    				enqueueMessage(toRandomCase(message) + ' 🙄');
+    				enqueueMessage(toRandomCase(message));
     			}
     		}
     		else {
