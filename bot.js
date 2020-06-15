@@ -39,7 +39,7 @@ function enqueueMessage(message) {
 	messageQueue.push(message);
 }
 
-async function onNodeAppend(e) {
+function onNodeAppend(e) {
     var usernameContainer = $(e.path).filter('.monologue').find('.signature .username')[0];
     var userId = $(e.path).filter('.monologue').find('.signature').get(-1);
     var messages = $(e.path).filter('.monologue .messages')[0];
