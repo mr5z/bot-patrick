@@ -1,18 +1,38 @@
 //localStorage['learnedThings'] = [];
 //localStorage['annoyingUsers'] = [];
 
-var main = document.getElementById('chat');
-var messageIds = [];
-var learnedThings = JSON.parse(localStorage['learnedThings'] != '' ? localStorage['learnedThings'] : '[]');
-var joinedRooms = [];
-var voteCastRoom = [];
-var annoyingUsers = JSON.parse(localStorage['annoyingUsers'] != '' ? localStorage['annoyingUsers'] : '[]');
-var MAX_VOTE_FOR_ROOM = 3;
+const main = document.getElementById('chat');
+const messageIds = [];
+const learnedThings = JSON.parse(localStorage['learnedThings'] != '' ? localStorage['learnedThings'] : '[]');
+const joinedRooms = [];
+const voteCastRoom = [];
+const annoyingUsers = JSON.parse(localStorage['annoyingUsers'] != '' ? localStorage['annoyingUsers'] : '[]');
+const MAX_VOTE_FOR_ROOM = 3;
 
-var DO_YOU_EVEN_MATH = 'https://i.imgur.com/UBoD276.png';
-var DUMB_FUCK_JUICE = 'https://i.kym-cdn.com/entries/icons/original/000/027/642/dumb.jpg';
-var WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
+const DO_YOU_EVEN_MATH = 'https://i.imgur.com/UBoD276.png';
+const DUMB_FUCK_JUICE = 'https://i.kym-cdn.com/entries/icons/original/000/027/642/dumb.jpg';
+const WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
 const PING_TRIGGER = 'PatrickStar';
+
+const messageQueue = [];
+
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function dequeueMessages() {
+	while (true) {
+		var message = messageQueue.shift();
+		if (message !== undefined) {
+			say(message);
+		}
+		await sleep(2000);
+	}
+}
+
+function enqueueMessage(message) {
+	messageQueue.push(message);
+}
 
 function onNodeAppend(e) {
     var usernameContainer = $(e.path).filter('.monologue').find('.signature .username')[0];
@@ -48,20 +68,20 @@ function onNodeAppend(e) {
 
  	if (userId == '-2') {
  		if (Math.random() > 0.3)
- 			say(`:${messageId} shut up`);
+ 			enqueueMessage(`:${messageId} shut up`);
  		else
- 			say('hurr durr');
+ 			enqueueMessage('hurr durr');
  	}
  	
 	if (message.includes('stop')) {
-		say(`@${displayName.replaceAll(' ', '')} hammer time!`);
+		enqueueMessage(`@${displayName.replaceAll(' ', '')} hammer time!`);
 	}
 
     if (message.includes(PING_TRIGGER)) {
     	message = message.replace(PING_TRIGGER, '').trim();
     	if (message.startsWith('say')) {
     		var reply = message.replace('say', '').trim();
-    		say(reply);
+    		enqueueMessage(reply);
     	}
     	else if (message.startsWith('eval')) {
     		message = message.replace('eval', '').trim();
@@ -69,18 +89,18 @@ function onNodeAppend(e) {
     			message.includes('if') ||
     			message.includes('function') ||
     			message.includes('})()')) {
-    			say("I don't think I would like that");
+    			enqueueMessageenqueueMessage("I don't think I would like that");
     		}
     		else {
     			try {
 		    		var result = eval('"use strict";' + message);
 		    		if (result != null || result != undefined || result != '')
-		    			say(result);
+		    			enqueueMessage(result);
 		    		else
-		    			say(WAT);
+		    			enqueueMessage(WAT);
 		    	}
 		    	catch (ex) {
-		    		say('hurr durr error');
+		    		enqueueMessage('hurr durr error');
 		    	}
     		}
     	}
@@ -92,10 +112,10 @@ function onNodeAppend(e) {
     			var value = parts[1];
     			learnedThings[key] = value;
     			localStorage['learnedThings'] = JSON.stringify(learnedThings);
-    			say(`:${messageId} learnedth ${key}`);
+    			enqueueMessage(`:${messageId} learnedth ${key}`);
     		}
     		else {
-    			say('what am I suppose to learn?');
+    			enqueueMessage('what am I suppose to learn?');
     		}
     	}
     	else if (message.startsWith('join')) {
@@ -105,16 +125,16 @@ function onNodeAppend(e) {
     			voteCastRoom[userId] = roomNumber;
 				var voteCount = voteCastRoom.filter(e => e == roomNumber).length;
     			if (voteCount >= MAX_VOTE_FOR_ROOM) {
-    				say("I'm joining the kids room " + roomNumber);
+    				enqueueMessage("I'm joining the kids room " + roomNumber);
     				window.open(`https://chat.stackoverflow.com/rooms/${roomNumber}`);
     				voteCastRoom = [];
     			}
     			else {
-    				say(`:${messageId} I'm going to join the children's room ${roomNumber}. I just need ${MAX_VOTE_FOR_ROOM - voteCount} more votes.`);
+    				enqueueMessage(`:${messageId} I'm going to join the children's room ${roomNumber}. I just need ${MAX_VOTE_FOR_ROOM - voteCount} more votes.`);
     			}
     		}
     		else {
-    			say(DO_YOU_EVEN_MATH);
+    			enqueueMessage(DO_YOU_EVEN_MATH);
     		}
     	}
     	else if (message == 'list annoying users') {
@@ -125,10 +145,10 @@ function onNodeAppend(e) {
 				reply += `name: ${name}, score: ${score}\n`;
 			}
     		if (reply != '') {
-    			say(reply);
+    			enqueueMessage(reply);
     		}
     		else {
-    			say('This room is filthy');
+    			enqueueMessage('This room is filthy');
     		}
 		}
     	else if (message.startsWith('vote annoying user')) {
@@ -138,20 +158,20 @@ function onNodeAppend(e) {
 	    		annoyingUsers[user] = annoyingUsers[user] || [];
 	    		annoyingUsers[user][userId] = 1;
     			localStorage['annoyingUsers'] = JSON.stringify(annoyingUsers);
-    			say(`@${user.replaceAll(' ', '')} ${displayName} voted you as annoying user.`);
+    			enqueueMessage(`@${user.replaceAll(' ', '')} ${displayName} voted you as annoying user.`);
     		}
     		else {
-    			say(DUMB_FUCK_JUICE);
+    			enqueueMessage(DUMB_FUCK_JUICE);
     		}
     	}
     	else if (message.startsWith('speak')) {
     		message = message.replace('speak', '').trim();
     		if (message.length > 0) {
     			message = encodeURIComponent(message);
-    			say(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=ar&engine=g3&name=&pitch=0.5&rate=0.5&volume=1&key=PL3QYYuV&gender=male)`);
+    			enqueueMessage(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=ar&engine=g3&name=&pitch=0.5&rate=0.5&volume=1&key=PL3QYYuV&gender=male)`);
     		}
     		else {
-    			say(DUMB_FUCK_JUICE);
+    			enqueueMessage(DUMB_FUCK_JUICE);
     		}
     	}
     	else {
@@ -159,14 +179,14 @@ function onNodeAppend(e) {
     		if (parts.length > 0) {
     			var key = parts[0];
     			if (learnedThings[key] != null) {
-    				say(learnedThings[key]);
+    				enqueueMessage(learnedThings[key]);
     			}
     			else {
-    				say(toRandomCase(message) + ' 🙄');
+    				enqueueMessage(toRandomCase(message) + ' 🙄');
     			}
     		}
     		else {
-    			say("huh?");
+    			enqueueMessage("huh?");
     		}
     	}
     }
