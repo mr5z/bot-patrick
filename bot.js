@@ -14,6 +14,7 @@ const MAX_VOTE_FOR_ROOM = 3;
 const DO_YOU_EVEN_MATH = 'https://i.imgur.com/UBoD276.png';
 const DUMB_FUCK_JUICE = 'https://i.kym-cdn.com/entries/icons/original/000/027/642/dumb.jpg';
 const WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
+const FOUR_O_FOUR = 'https://img.pngio.com/patrick-one-tooth-laugh-animated-gif-gifs-gifsoupcom-little-patrick-star-one-tooth-320_240.gif';
 const PING_TRIGGERS = ['PatrickStar', 'p3k'];
 
 const messageQueue = [];
@@ -22,24 +23,24 @@ var messageIds = [];
 var lastMessage = '';
 
 function sleep(ms) {
-	return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function dequeueMessages() {
-	while (true) {
-		var message = messageQueue.shift();
-		if (message !== undefined) {
-			say(message);
-		}
-		await sleep(3000);
-	}
+    while (true) {
+        var message = messageQueue.shift();
+        if (message !== undefined) {
+            say(message);
+        }
+        await sleep(3000);
+    }
 }
 
 function enqueueMessage(message) {
-	messageQueue.push(message);
+    messageQueue.push(message);
 }
 
-function onNodeAppend(e) {
+async function onNodeAppend(e) {
     var usernameContainer = $(e.path).filter('.monologue').find('.signature .username')[0];
     var userId = $(e.path).filter('.monologue').find('.signature').get(-1);
     var messages = $(e.path).filter('.monologue .messages')[0];
@@ -52,160 +53,187 @@ function onNodeAppend(e) {
     var id = parts[1];
 
     if (parts[0] == 'pending') {
-    	var retryContainer = $(content).next();
-    	var retryIn = $(retryContainer).text().match(/(?!You can perform this action again in )[0-9]+(?= second(s*)\.)/);
-    	if (retryIn != null) {
-    		retryIn = retryIn[0];
-	    	setTimeout(() => {
-	    		$(retryContainer).children()[0].click();
-	    	}, (retryIn + 1) * 1000);
-    	}
-    	return;
+        var retryContainer = $(content).next();
+        var retryIn = $(retryContainer).text().match(/(?!You can perform this action again in )[0-9]+(?= second(s*)\.)/);
+        if (retryIn != null) {
+            retryIn = retryIn[0];
+            setTimeout(() => {
+                $(retryContainer).children()[0].click();
+            }, (retryIn + 1) * 1000);
+        }
+        return;
     }
 
     var messageId = attr.split('-')[1];
 
     if (messageIds[messageId] != null)
-    	return;
+        return;
 
     if (messageIds.length > 100)
-    	messageIds = [];
+        messageIds = [];
 
     messageIds[messageId] = messageId;
 
     var message = getMessage(content);
- 	var paths = $(userId).attr('href').split('/');
- 	var userId = $(paths).get(-1);
- 	var displayName = usernameContainer.innerText;
+    var paths = $(userId).attr('href').split('/');
+    var userId = $(paths).get(-1);
+    var displayName = usernameContainer.innerText;
 
- 	if (userId == '12252511')
- 		return;
+    if (userId == '12252511')
+        return;
 
- 	if (userId == '-2') {
- 		if (Math.random() > 0.3)
- 			enqueueMessage(`:${messageId} shut up`);
- 		else
- 			enqueueMessage('hurr durr');
- 	}
- 	
-	if (message.includes('stop')) {
-		enqueueMessage(`@${displayName.replaceAll(' ', '')} hammer time!`);
-	}
+    if (userId == '-2') {
+        if (Math.random() > 0.3)
+            enqueueMessage(`:${messageId} shut up`);
+        else
+            enqueueMessage('hurr durr');
+    }
+    
+    if (message.includes('stop')) {
+        enqueueMessage(`@${displayName.replaceAll(' ', '')} hammer time!`);
+    }
 
     if (PING_TRIGGERS.findIndex(s => message.indexOf(s) > -1) > - 1) {
-    	for(var i = 0;i < PING_TRIGGERS.length; ++i) {
-    		message = message.replace(PING_TRIGGERS[i], '').trim();
-    	}
-    	if (message.startsWith('say')) {
-    		var reply = message.replace('say', '').trim();
-    		enqueueMessage(reply);
-    	}
-    	else if (message.startsWith('eval')) {
-    		message = message.replace('eval', '').trim();
-    		if (message.includes('while') ||
-    			message.includes('if') ||
-    			message.includes('function') ||
-    			message.includes('})()')) {
-    			enqueueMessageenqueueMessage("I don't think I would like that");
-    		}
-    		else {
-    			try {
-		    		var result = eval('"use strict";' + message);
-		    		if (result != null || result != undefined || result != '')
-		    			enqueueMessage(result);
-		    		else
-		    			enqueueMessage(WAT);
-		    	}
-		    	catch (ex) {
-		    		enqueueMessage('hurr durr error');
-		    	}
-    		}
-    	}
-    	else if (message.startsWith('learn')) {
-    		message = message.replace('learn', '').trim();
-    		var parts = message.split(/ (.+)/).filter(e => e != null && e != '');
-    		if (parts.length >= 2) {
-    			var key = parts[0];
-    			var value = parts[1];
-    			learnedThings[key] = value;
-    			localStorage['learnedThings'] = JSON.stringify(learnedThings);
-    			enqueueMessage(`:${messageId} learnedth ${key}`);
-    		}
-    		else {
-    			enqueueMessage('what am I suppose to learn?');
-    		}
-    	}
-    	else if (message.startsWith('join')) {
-    		message = message.replace('join', '').trim();
-    		var roomNumber = tryParseInt(message);
-    		if (roomNumber >= 0) {
-    			voteCastRoom[userId] = roomNumber;
-				var voteCount = voteCastRoom.filter(e => e == roomNumber).length;
-    			if (voteCount >= MAX_VOTE_FOR_ROOM) {
-    				enqueueMessage("I'm joining the kids room " + roomNumber);
-    				window.open(`https://chat.stackoverflow.com/rooms/${roomNumber}`);
-    				voteCastRoom = [];
-    			}
-    			else {
-    				enqueueMessage(`:${messageId} I'm going to join the children's room ${roomNumber}. I just need ${MAX_VOTE_FOR_ROOM - voteCount} more votes.`);
-    			}
-    		}
-    		else {
-    			enqueueMessage(DO_YOU_EVEN_MATH);
-    		}
-    	}
-    	else if (message == 'list annoying users') {
-    		var reply = '';
-    		for(var i in annoyingUsers) {
-				var name = i;
-				var score = annoyingUsers[i] != null ? Object.keys(annoyingUsers[i]).length : 0;
-				reply += `name: ${name}, score: ${score}\n`;
-			}
-    		if (reply != '') {
-    			enqueueMessage(reply);
-    		}
-    		else {
-    			enqueueMessage('This room is filthy');
-    		}
-		}
-    	else if (message.startsWith('vote annoying user')) {
-    		message = message.replace('vote annoying user', '').trim();
-    		var user = message;
-    		if (user.length > 0) {
-	    		annoyingUsers[user] = annoyingUsers[user] || [];
-	    		annoyingUsers[user][userId] = 1;
-    			localStorage['annoyingUsers'] = JSON.stringify(annoyingUsers);
-    			enqueueMessage(`@${user.replaceAll(' ', '')} ${displayName} voted you as annoying user.`);
-    		}
-    		else {
-    			enqueueMessage(DUMB_FUCK_JUICE);
-    		}
-    	}
-    	else if (message.startsWith('speak')) {
-    		message = message.replace('speak', '').trim();
-    		if (message.length > 0) {
-    			message = encodeURIComponent(message);
-    			enqueueMessage(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=kn&engine=g3&name=&pitch=0.1&rate=0.5&volume=1&key=PL3QYYuV&gender=male)`);
-    		}
-    		else {
-    			enqueueMessage(DUMB_FUCK_JUICE);
-    		}
-    	}
-    	else {
-    		var parts = message.split(/ (.+)/).filter(e => e != null && e != '');
-    		if (parts.length > 0) {
-    			var key = parts[0];
-    			if (learnedThings[key] != null) {
-    				enqueueMessage(learnedThings[key]);
-    			}
-    			else {
-    				enqueueMessage(toRandomCase(message));
-    			}
-    		}
-    		else {
-    			enqueueMessage("huh?");
-    		}
-    	}
+        for(var i = 0;i < PING_TRIGGERS.length; ++i) {
+            message = message.replace(PING_TRIGGERS[i], '').trim();
+        }
+        if (message.startsWith('say')) {
+            var reply = message.replace('say', '').trim();
+            enqueueMessage(reply);
+        }
+        else if (message.startsWith('eval')) {
+            message = message.replace('eval', '').trim();
+            if (message.includes('while') ||
+                message.includes('if') ||
+                message.includes('function') ||
+                message.includes('})()')) {
+                enqueueMessageenqueueMessage("I don't think I would like that");
+            }
+            else {
+                try {
+                    var result = eval('"use strict";' + message);
+                    if (result != null || result != undefined || result != '')
+                        enqueueMessage(result);
+                    else
+                        enqueueMessage(WAT);
+                }
+                catch (ex) {
+                    enqueueMessage('hurr durr error');
+                }
+            }
+        }
+        else if (message.startsWith('learn')) {
+            message = message.replace('learn', '').trim();
+            var parts = message.split(/ (.+)/).filter(e => e != null && e != '');
+            if (parts.length >= 2) {
+                var key = parts[0];
+                var value = parts[1];
+                learnedThings[key] = value;
+                localStorage['learnedThings'] = JSON.stringify(learnedThings);
+                enqueueMessage(`:${messageId} learnedth ${key}`);
+            }
+            else {
+                enqueueMessage('what am I suppose to learn?');
+            }
+        }
+        else if (message.startsWith('join')) {
+            message = message.replace('join', '').trim();
+            var roomNumber = tryParseInt(message);
+            if (roomNumber >= 0) {
+                voteCastRoom[userId] = roomNumber;
+                var voteCount = voteCastRoom.filter(e => e == roomNumber).length;
+                if (voteCount >= MAX_VOTE_FOR_ROOM) {
+                    enqueueMessage("I'm joining the kids room " + roomNumber);
+                    window.open(`https://chat.stackoverflow.com/rooms/${roomNumber}`);
+                    voteCastRoom = [];
+                }
+                else {
+                    enqueueMessage(`:${messageId} I'm going to join the children's room ${roomNumber}. I just need ${MAX_VOTE_FOR_ROOM - voteCount} more votes.`);
+                }
+            }
+            else {
+                enqueueMessage(DO_YOU_EVEN_MATH);
+            }
+        }
+        else if (message == 'list annoying users') {
+            var reply = '';
+            for(var i in annoyingUsers) {
+                var name = i;
+                var score = annoyingUsers[i] != null ? Object.keys(annoyingUsers[i]).length : 0;
+                reply += `name: ${name}, score: ${score}\n`;
+            }
+            if (reply != '') {
+                enqueueMessage(reply);
+            }
+            else {
+                enqueueMessage('This room is filthy');
+            }
+        }
+        else if (message.startsWith('vote annoying user')) {
+            message = message.replace('vote annoying user', '').trim();
+            var user = message;
+            if (user.length > 0) {
+                annoyingUsers[user] = annoyingUsers[user] || [];
+                annoyingUsers[user][userId] = 1;
+                localStorage['annoyingUsers'] = JSON.stringify(annoyingUsers);
+                enqueueMessage(`@${user.replaceAll(' ', '')} ${displayName} voted you as annoying user.`);
+            }
+            else {
+                enqueueMessage(DUMB_FUCK_JUICE);
+            }
+        }
+        else if (message.startsWith('speak')) {
+            message = message.replace('speak', '').trim();
+            if (message.length > 0) {
+                message = encodeURIComponent(message);
+                enqueueMessage(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=kn&engine=g3&name=&pitch=0.1&rate=0.5&volume=1&key=PL3QYYuV&gender=male)`);
+            }
+            else {
+                enqueueMessage(DUMB_FUCK_JUICE);
+            }
+        }
+        else if (message.startsWith('acronym')) {
+            message = message.replace('acronym', '').trim();
+
+            const settings = {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `action=get_ac&term=${encodeURIComponent(message)}`
+            };
+            try {
+                const response = await fetch('https://www.abbreviations.com/gw.php', settings);
+                const data = await response.json();
+                console.log(data);
+                if (data.length > 0) {
+                    var firstEntry = data[0];
+                    enqueueMessage(`${firstEntry.term}: ${firstEntry.desc}`);
+                }
+                else {
+                    enqueueMessage(FOUR_O_FOUR);
+                }
+            } catch (e) {
+                console.log(e);
+                enqueueMessage(FOUR_O_FOUR);
+            }
+        }
+        else {
+            var parts = message.split(/ (.+)/).filter(e => e != null && e != '');
+            if (parts.length > 0) {
+                var key = parts[0];
+                if (learnedThings[key] != null) {
+                    enqueueMessage(learnedThings[key]);
+                }
+                else {
+                    enqueueMessage(toRandomCase(message));
+                }
+            }
+            else {
+                enqueueMessage("huh?");
+            }
+        }
     }
     // console.log('userId: ' + userId);
     // console.log('messageId: ' + messageId);
@@ -218,56 +246,56 @@ main.addEventListener("DOMNodeInserted", onNodeAppend);
 dequeueMessages();
 
 function toRandomCase(text) {
-	if (text == null|| text == undefined)
-		return text;
+    if (text == null|| text == undefined)
+        return text;
 
-	var newText = '';
-	for(var i = 0;i < text.length; ++i) {
-		newText += i % 2 != 0 ? text[i].toUpperCase() : text[i].toLowerCase();
-	}
-	return newText;
+    var newText = '';
+    for(var i = 0;i < text.length; ++i) {
+        newText += i % 2 != 0 ? text[i].toUpperCase() : text[i].toLowerCase();
+    }
+    return newText;
 }
 
 function say(message) {
-	if (lastMessage == message) {
-		message += new Array(Math.random() * 5 | 0).fill('.').join('');
-	}
-	$('#input').val(message);
-	$('#sayit-button').click();
-	lastMessage = message;
+    if (lastMessage == message) {
+        message += new Array(Math.random() * 5 | 0).fill('.').join('');
+    }
+    $('#input').val(message);
+    $('#sayit-button').click();
+    lastMessage = message;
 }
 
 function getMessage(content) {
 
     var link = $(content).find('.ob-post-title a').attr('href');
-	if (link != null && link != '') {
-		return link;
-	}
+    if (link != null && link != '') {
+        return link;
+    }
 
-	var message = '';
-	var children = content.childNodes;
-	for(var i = 0;i < children.length; ++i) {
-		var e = children[i];
+    var message = '';
+    var children = content.childNodes;
+    for(var i = 0;i < children.length; ++i) {
+        var e = children[i];
 
-		var href = $(e).attr('href');
+        var href = $(e).attr('href');
 
-		if (href != null) {
-			message += href; // `[${$(e).text()}](${href})`;
-		}
-		else {
-			message += $(e).text();
-		}
-	}
-	return message;
+        if (href != null) {
+            message += href; // `[${$(e).text()}](${href})`;
+        }
+        else {
+            message += $(e).text();
+        }
+    }
+    return message;
 }
 
 function tryParseInt(str) {
-	try {
-		return parseInt(str);
-	}
-	catch (ex) {
-		return -1;
-	}
+    try {
+        return parseInt(str);
+    }
+    catch (ex) {
+        return -1;
+    }
 }
 
 (function(){
@@ -295,34 +323,34 @@ function tryParseInt(str) {
 
 
 function safeEval(code) {
-	// create our own local versions of window and document with limited functionality
-	var locals = {
-	    window: {
-	    },
-	    document: {
-	    }
-	};
+    // create our own local versions of window and document with limited functionality
+    var locals = {
+        window: {
+        },
+        document: {
+        }
+    };
 
-	var that = Object.create(null); // create our own this object for the user code
-	createSandbox(code, that, locals)(); // create a sandbox
+    var that = Object.create(null); // create our own this object for the user code
+    createSandbox(code, that, locals)(); // create a sandbox
 
-	function createSandbox(code, that, locals) {
-	    var params = []; // the names of local variables
-	    var args = []; // the local variables
+    function createSandbox(code, that, locals) {
+        var params = []; // the names of local variables
+        var args = []; // the local variables
 
-	    for (var param in locals) {
-	        if (locals.hasOwnProperty(param)) {
-	            args.push(locals[param]);
-	            params.push(param);
-	        }
-	    }
+        for (var param in locals) {
+            if (locals.hasOwnProperty(param)) {
+                args.push(locals[param]);
+                params.push(param);
+            }
+        }
 
-	    var context = Array.prototype.concat.call(that, params, code); // create the parameter list for the sandbox
-	    var sandbox = new (Function.prototype.bind.apply(Function, context)); // create the sandbox function
-	    context = Array.prototype.concat.call(that, args); // create the argument list for the sandbox
+        var context = Array.prototype.concat.call(that, params, code); // create the parameter list for the sandbox
+        var sandbox = new (Function.prototype.bind.apply(Function, context)); // create the sandbox function
+        context = Array.prototype.concat.call(that, args); // create the argument list for the sandbox
 
-	    return Function.prototype.bind.apply(sandbox, context); // bind the local variables to the sandbox
-	}
+        return Function.prototype.bind.apply(sandbox, context); // bind the local variables to the sandbox
+    }
 }
 
 String.prototype.replaceAll = function(search, replacement) {
