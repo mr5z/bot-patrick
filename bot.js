@@ -15,6 +15,7 @@ const DO_YOU_EVEN_MATH = 'https://i.imgur.com/UBoD276.png';
 const DUMB_FUCK_JUICE = 'https://i.kym-cdn.com/entries/icons/original/000/027/642/dumb.jpg';
 const WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
 const FOUR_O_FOUR = 'https://img.pngio.com/patrick-one-tooth-laugh-animated-gif-gifs-gifsoupcom-little-patrick-star-one-tooth-320_240.gif';
+const FRIDAY = 'https://pbs.twimg.com/media/DDkl-SmXcAYlFnn.jpg';
 const PING_TRIGGERS = ['PatrickStar', 'p3k'];
 
 const messageQueue = [];
@@ -186,7 +187,7 @@ async function onNodeAppend(e) {
             message = message.replace('speak', '').trim();
             if (message.length > 0) {
                 message = encodeURIComponent(message);
-                enqueueMessage(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=kn&engine=g3&name=&pitch=0.1&rate=0.5&volume=1&key=PL3QYYuV&gender=male)`);
+                enqueueMessage(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=j&engine=g3&name=&pitch=0.5&rate=0.5&volume=1&key=PL3QYYuV&gender=female)`);
             }
             else {
                 enqueueMessage(DUMB_FUCK_JUICE);
@@ -218,6 +219,9 @@ async function onNodeAppend(e) {
                 console.log(e);
                 enqueueMessage(FOUR_O_FOUR);
             }
+        }
+        else if (message.startsWith('friday')) {
+        	enqueueMessage(FRIDAY);
         }
         else {
             var parts = message.split(/ (.+)/).filter(e => e != null && e != '');
