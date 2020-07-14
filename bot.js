@@ -276,6 +276,16 @@ async function onNodeAppend(e) {
             else
                 enqueueMessage(`[${message}](https://www.youtube.com/watch?v=oHg5SJYRHA0)`);
         }
+        else if (message.startsWith('help')) {
+            message = message.replace('help', '').trim();
+            const commandDescription = commandDictionary[message];
+            if (commandDescription === undefined || commandDescription == null) {
+                enqueueMessage(FOUR_O_FOUR);
+            }
+            else {
+                enqueueMessage(commandDescription);
+            }
+        }
         else {
             var parts = message.split(/ (.+)/).filter(e => e != null && e != '');
             if (parts.length > 0) {
@@ -413,6 +423,17 @@ function safeEval(code) {
 String.prototype.replaceAll = function(search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
+};
+
+const commandDictionary = {
+    'dota': `
+    1. Go to https://dota2.gamepedia.com/Category:Chat_wheel_sounds
+    2. Execute this script:
+        var audios = document.getElementsByTagName('audio');
+        var list = [];
+        [].forEach.call(audios, e => list.push(e.src));
+    3. Make the last segment of each URL from the list as hint.
+`
 };
 
 const audios =
