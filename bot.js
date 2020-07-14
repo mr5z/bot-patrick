@@ -256,15 +256,23 @@ async function onNodeAppend(e) {
         else if (message.startsWith('dota')) {
             message = message.replace('dota', '').trim();
             var audioToPlay = null;
-            for(var i = 0;i < i < audios.length; ++i) {
-                const audio = audios[i];
-                if (audio.toLowerCase().includes(message)) {
-                    audioToPlay = audio;
+            for(var i = 0;i < audios.length; ++i) {
+                const url = audios[i];
+                if (url.lastIndexOf('/') < 0)
+                    continue;
+
+                const tempName = url
+                    .substring(url.lastIndexOf('/') + 1)
+                    .replace('.mp3', '')
+                    .replaceAll('_', ' ');
+
+                if (tempName.toLowerCase().includes(message.toLowerCase())) {
+                    audioToPlay = url;
                     break;
                 }
             }
             if (audioToPlay != null)
-                enqueueMessage(`[message](audioToPlay)`);
+                enqueueMessage(`[${message}](${audioToPlay})`);
             else
                 enqueueMessage(`[${message}](https://www.youtube.com/watch?v=oHg5SJYRHA0)`);
         }
