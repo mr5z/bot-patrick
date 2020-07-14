@@ -427,7 +427,7 @@ String.prototype.replaceAll = function(search, replacement) {
 
 const commandDictionary = {
     'dota': `
-    1. Go to [https://dota2.gamepedia.com/Category:Chat_wheel_sounds](https://dota2.gamepedia.com/Category:Chat_wheel_sounds)
+    1. Go to https://dota2.gamepedia.com/Category:Chat_wheel_sounds
     2. Execute this script:
         var audios = document.getElementsByTagName('audio');
         var list = [];
