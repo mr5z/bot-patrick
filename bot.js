@@ -427,12 +427,12 @@ String.prototype.replaceAll = function(search, replacement) {
 
 const commandDictionary = {
     'dota': `
-    1. Go to https://dota2.gamepedia.com/Category:Chat_wheel_sounds
-    2. Execute this script:
+    1. gO To https://dota2.gamepedia.com/Category:Chat_wheel_sounds
+    2. eXeCuTe tHiS ScRiPt:
         var audios = document.getElementsByTagName('audio');
         var list = [];
         [].forEach.call(audios, e => list.push(e.src));
-    3. Make the last segment of each URL from the list as hint.
+    3. mAkE ThE LaSt sEgMeNt oF EaCh uRl fRoM ThE LiSt aS HiNt.
 `
 };
 
