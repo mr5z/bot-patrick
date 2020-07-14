@@ -108,7 +108,7 @@ async function onNodeAppend(e) {
                 message.includes('if') ||
                 message.includes('function') ||
                 message.includes('})()')) {
-                enqueueMessageenqueueMessage("I don't think I would like that");
+                enqueueMessage("I don't think I would like that");
             }
             else {
                 try {
@@ -207,7 +207,6 @@ async function onNodeAppend(e) {
             try {
                 const response = await fetch('https://www.abbreviations.com/gw.php', settings);
                 const data = await response.json();
-                console.log(data);
                 if (data.length > 0) {
                     var firstEntry = data[Math.random() * data.length | 0];
                     enqueueMessage(`${firstEntry.term}: ${firstEntry.desc}`);
@@ -220,8 +219,54 @@ async function onNodeAppend(e) {
                 enqueueMessage(FOUR_O_FOUR);
             }
         }
+        else if (message.startsWith('mimi')) {
+            message = message.replace('mimi', '').trim();
+            const params = message.match(/\w+|"[^"]+"/g);
+            const text0 = params[0]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '');
+            const text1 = params[1]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '');
+            try {
+                const memeResponse = await fetch('https://api.imgflip.com/get_memes');
+                const data = await memeResponse.json();
+                const memes = data.data.memes;
+                const entry = memes[Math.random() * memes.length | 0];
+                const settings = {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: `template_id=${entry.id}&username=PatrickBot&password=8WaHj#x3Aq1xy*7qn&text0=${text0}&text1=${text1}`
+                };
+                const captionResponse = await fetch('https://api.imgflip.com/caption_image', settings);
+                const captionData = await captionResponse.json();
+                if (captionData != null) {
+                    enqueueMessage(captionData.data.url);
+                }
+                else {
+                    enqueueMessage(FOUR_O_FOUR);
+                }
+            } catch (e) {
+                console.log(e);
+                enqueueMessage(FOUR_O_FOUR);
+            }
+        }
         else if (message.startsWith('friday')) {
         	enqueueMessage(FRIDAY);
+        }
+        else if (message.startsWith('dota')) {
+            message = message.replace('dota', '').trim();
+            var audioToPlay = null;
+            for(var i = 0;i < i < audios.length; ++i) {
+                const audio = audios[i];
+                if (audio.toLowerCase().includes(message)) {
+                    audioToPlay = audio;
+                    break;
+                }
+            }
+            if (audioToPlay != null)
+                enqueueMessage(`[message](audioToPlay)`);
+            else
+                enqueueMessage(`[${message}](https://www.youtube.com/watch?v=oHg5SJYRHA0)`);
         }
         else {
             var parts = message.split(/ (.+)/).filter(e => e != null && e != '');
@@ -361,3 +406,6 @@ String.prototype.replaceAll = function(search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);
 };
+
+const audios =
+["https://gamepedia.cursecdn.com/dota2_gamepedia/5/5c/Chat_wheel_2017_all_dead.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d7/Chat_wheel_2017_ay_ay_ay.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/1/1e/Chat_wheel_2017_bozhe_ti_posmotri.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/88/Chat_wheel_2017_brutal.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/82/Chat_wheel_2017_charge.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/2/2f/Chat_wheel_2017_crash_burn.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/8c/Chat_wheel_2017_cricket.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/2/21/Chat_wheel_2017_crybaby.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/4/48/Chat_wheel_2017_disastah.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/9/97/Chat_wheel_2017_drum_roll.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/4/4d/Chat_wheel_2017_ehto_g_g.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/9/95/Chat_wheel_2017_eto_prosto_netchto.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/5/52/Chat_wheel_2017_frog.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/5/5f/Chat_wheel_2017_headshake.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/6/6c/Chat_wheel_2017_jia_you.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/b/b6/Chat_wheel_2017_patience.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/3/39/Chat_wheel_2017_po_liang_lu.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/9/99/Chat_wheel_2017_rimshot.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/3/3c/Chat_wheel_2017_sad_bone.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/7/76/Chat_wheel_2017_sproing.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/5/51/Chat_wheel_2017_tian_huo.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/0/04/Chat_wheel_2017_wan_bu_liao_la.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/b/b7/Chat_wheel_2017_wow.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/0/08/Chat_wheel_2017_zhil_do_konsta.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/0/0f/Chat_wheel_2017_zou_hao_bu_song.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/86/Chat_wheel_2018_bockbock.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/5/55/Chat_wheel_2018_bozhe_kak_eto_bolno.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d9/Chat_wheel_2018_duiyou_ne.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/1/13/Chat_wheel_2018_easiest_money.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/7/73/Chat_wheel_2018_echo_slama_jama.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/fc/Chat_wheel_2018_eto_nenormalno.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d2/Chat_wheel_2018_eto_sochno.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/f7/Chat_wheel_2018_gao_fu_shuai.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/c/c0/Chat_wheel_2018_hu_lu_wa.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/4/47/Chat_wheel_2018_kiss.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/fd/Chat_wheel_2018_krasavchik.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/0/03/Chat_wheel_2018_liu_liu_liu.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/6/60/Chat_wheel_2018_next_level.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/fd/Chat_wheel_2018_ni_qi_bu_qi.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/3/32/Chat_wheel_2018_oh_my_lord.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/86/Chat_wheel_2018_ow.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/3/34/Chat_wheel_2018_oy_oy_bezhat.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/4/4c/Chat_wheel_2018_oy_oy_oy.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/6/65/Chat_wheel_2018_party_horn.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/c/c7/Chat_wheel_2018_playing_to_win.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/4/49/Chat_wheel_2018_snore.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/b/bb/Chat_wheel_2018_ta_daaaa.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/a/ab/Chat_wheel_2018_that_was_questionable.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/fd/Chat_wheel_2018_what_just_happened.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/2/2e/Chat_wheel_2018_yahoo.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/c/c0/Chat_wheel_2018_youre_a_hero.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/88/Chat_wheel_2019_absolutely_perfect.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/fb/Chat_wheel_2019_bai_tuo_shei_qu.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/c/cf/Chat_wheel_2019_ceeeb_start.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/8c/Chat_wheel_2019_ceeeb_stop.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/1/10/Chat_wheel_2019_da_da_da_nyet.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/9/9d/Chat_wheel_2019_ding_ding_ding.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/ff/Chat_wheel_2019_eto_ge_popayx_feeda.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/1/19/Chat_wheel_2019_eughahaha.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d5/Chat_wheel_2019_gan_ma_ne_xiong_di.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d5/Chat_wheel_2019_glados_chat_01.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/a/ac/Chat_wheel_2019_glados_chat_04.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/1/14/Chat_wheel_2019_glados_chat_07.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/f4/Chat_wheel_2019_glados_chat_21.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/2/28/Chat_wheel_2019_goodness_gracious.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/b/b4/Chat_wheel_2019_kak_boyge_te_byechenya.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/8d/Chat_wheel_2019_kor_immortality.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/4/41/Chat_wheel_2019_kor_million_dollar_house.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d3/Chat_wheel_2019_kor_roshan.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/0/01/Chat_wheel_2019_kor_scan.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/7/7b/Chat_wheel_2019_kor_yes_no.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/0/03/Chat_wheel_2019_kor_yolo.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/2/21/Chat_wheel_2019_kreasa_kreasa.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/f9/Chat_wheel_2019_lets_play.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/a/a3/Chat_wheel_2019_lian_dou_xiu_wai_la.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/4/49/Chat_wheel_2019_looking_spicy.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/82/Chat_wheel_2019_nakupuuu.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d1/Chat_wheel_2019_no_chill.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/5/57/Chat_wheel_2019_piao_liang.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/1/15/Chat_wheel_2019_ti9_crowd_groan.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d1/Chat_wheel_2019_ti9_head_bonk.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/f9/Chat_wheel_2019_ti9_kooka_laugh.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/e/e7/Chat_wheel_2019_ti9_monkey_biz.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/6/69/Chat_wheel_2019_ti9_orangutan_kiss.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/f/f8/Chat_wheel_2019_ti9_record_scratch.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/c/c5/Chat_wheel_2019_ti9_skeeter.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/a/a3/Chat_wheel_2019_ti9_ta_da.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/6/61/Chat_wheel_2019_whats_cooking.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/5/55/Chat_wheel_2019_wot_eto_bru.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/4/49/Chat_wheel_2019_zai_jian_le_bao_bei.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d5/Chat_wheel_frostivus_2018_champagne_celebration.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/1/1a/Chat_wheel_frostivus_2018_frostivus_magic.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/a/af/Chat_wheel_frostivus_2018_greevil_laugh01.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/1/12/Chat_wheel_frostivus_2018_greevil_laugh02.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/2/21/Chat_wheel_frostivus_2018_greevil_laugh03.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/c/cd/Chat_wheel_frostivus_2018_greevil_laugh04.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/dc/Chat_wheel_frostivus_2018_greevil_laugh05.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/4/4e/Chat_wheel_frostivus_2018_greevil_laugh06.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/0/04/Chat_wheel_frostivus_2018_greevil_laugh07.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/d/d6/Chat_wheel_frostivus_2018_sleighbells.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/6/63/Chat_wheel_new_bloom_2019_ny_drums.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/88/Chat_wheel_new_bloom_2019_ny_gong.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/6/6a/Chat_wheel_new_bloom_2019_ny_pig_snort.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/8/84/Crowd_1.mp3","https://gamepedia.cursecdn.com/dota2_gamepedia/c/c1/Crowd_2.mp3"];
