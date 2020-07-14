@@ -209,7 +209,7 @@ async function onNodeAppend(e) {
                 const data = await response.json();
                 console.log(data);
                 if (data.length > 0) {
-                    var firstEntry = data[0];
+                    var firstEntry = data[Math.random() * data.length | 0];
                     enqueueMessage(`${firstEntry.term}: ${firstEntry.desc}`);
                 }
                 else {
