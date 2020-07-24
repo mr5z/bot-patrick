@@ -103,7 +103,7 @@ async function onNodeAppend(e) {
             enqueueMessage(reply);
         }
         else if (message.startsWith('eval')) {
-            message = message.replace('eval', '').trim();
+            message = message.sanitize('eval');
             if (message.includes('while') ||
                 message.includes('if') ||
                 message.includes('function') ||
@@ -124,7 +124,7 @@ async function onNodeAppend(e) {
             }
         }
         else if (message.startsWith('learn')) {
-            message = message.replace('learn', '').trim();
+            message = message.sanitize('learn');
             var parts = message.split(/ (.+)/).filter(e => e != null && e != '');
             if (parts.length >= 2) {
                 var key = parts[0];
@@ -138,7 +138,7 @@ async function onNodeAppend(e) {
             }
         }
         else if (message.startsWith('join')) {
-            message = message.replace('join', '').trim();
+            message = message.sanitize('join');
             var roomNumber = tryParseInt(message);
             if (roomNumber >= 0) {
                 voteCastRoom[userId] = roomNumber;
@@ -171,7 +171,7 @@ async function onNodeAppend(e) {
             }
         }
         else if (message.startsWith('vote annoying user')) {
-            message = message.replace('vote annoying user', '').trim();
+            message = message.sanitize('vote annoying user');
             var user = message;
             if (user.length > 0) {
                 annoyingUsers[user] = annoyingUsers[user] || [];
@@ -184,7 +184,7 @@ async function onNodeAppend(e) {
             }
         }
         else if (message.startsWith('speak')) {
-            message = message.replace('speak', '').trim();
+            message = message.sanitize('speak');
             if (message.length > 0) {
                 message = encodeURIComponent(message);
                 enqueueMessage(`[listen here you lil sh...](https://texttospeech.responsivevoice.org/v1/text:synthesize?text=${message}&lang=j&engine=g3&name=&pitch=0.5&rate=0.5&volume=1&key=PL3QYYuV&gender=female)`);
@@ -194,8 +194,7 @@ async function onNodeAppend(e) {
             }
         }
         else if (message.startsWith('acronym')) {
-            message = message.replace('acronym', '').trim();
-
+            message = message.sanitize('acronym');
             const settings = {
                 method: 'POST',
                 headers: {
@@ -205,8 +204,7 @@ async function onNodeAppend(e) {
                 body: `action=get_ac&term=${encodeURIComponent(message)}`
             };
             try {
-                const response = await fetch('https://www.abbreviations.com/gw.php', settings);
-                const data = await response.json();
+                const data = await jsonFetch('https://www.abbreviations.com/gw.php', settings);
                 if (data.length > 0) {
                     var firstEntry = data[Math.random() * data.length | 0];
                     enqueueMessage(`${firstEntry.term}: ${firstEntry.desc}`);
@@ -219,42 +217,35 @@ async function onNodeAppend(e) {
                 enqueueMessage(FOUR_O_FOUR);
             }
         }
+        else if (message.startsWith('mimimized')) {
+        	var response = await jsonFetch('https://official-joke-api.appspot.com/random_joke');
+        	if (response != null) {
+        		var input = `"${response.setup}" "${response.punchline}"`;
+        		var mimiResponse = await mimiApi(input);
+        		if (mimiResponse != null) {
+        			enqueueMessage(mimiResponse);
+        		}
+        		else {
+        			enqueueMessage(FOUR_O_FOUR);
+        		}
+        	}
+        	else {
+        		enqueueMessage(FOUR_O_FOUR);
+        	}
+        }
         else if (message.startsWith('mimi')) {
-            message = message.replace('mimi', '').trim();
-            const params = message.match(/\w+|"[^"]+"/g);
-            const text0 = params[0]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '');
-            const text1 = params[1]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '');
-            try {
-                const memeResponse = await fetch('https://api.imgflip.com/get_memes');
-                const data = await memeResponse.json();
-                const memes = data.data.memes;
-                const entry = memes[Math.random() * memes.length | 0];
-                const settings = {
-                    method: 'POST',
-                    headers: {
-                        Accept: 'application/json',
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    },
-                    body: `template_id=${entry.id}&username=PatrickBot&password=8WaHj#x3Aq1xy*7qn&text0=${text0}&text1=${text1}`
-                };
-                const captionResponse = await fetch('https://api.imgflip.com/caption_image', settings);
-                const captionData = await captionResponse.json();
-                if (captionData != null) {
-                    enqueueMessage(captionData.data.url);
-                }
-                else {
-                    enqueueMessage(FOUR_O_FOUR);
-                }
-            } catch (e) {
-                console.log(e);
-                enqueueMessage(FOUR_O_FOUR);
-            }
+            message = message.sanitize('mimi');
+        	var response = await mimiApi(message);
+        	if (response != null)
+        		enqueueMessage(response);
+        	else
+        		enqueueMessage(FOUR_O_FOUR);
         }
         else if (message.startsWith('friday')) {
         	enqueueMessage(FRIDAY);
         }
         else if (message.startsWith('dota')) {
-            message = message.replace('dota', '').trim();
+            message = message.sanitize('dota');
             var audioToPlay = null;
             for(var i = 0;i < audios.length; ++i) {
                 const url = audios[i];
@@ -277,7 +268,7 @@ async function onNodeAppend(e) {
                 enqueueMessage(`[${message}](https://www.youtube.com/watch?v=oHg5SJYRHA0)`);
         }
         else if (message.startsWith('help')) {
-            message = message.replace('help', '').trim();
+            message = message.sanitize('help');
             const commandDescription = commandDictionary[message];
             if (commandDescription === undefined || commandDescription == null) {
                 enqueueMessage(FOUR_O_FOUR);
@@ -311,6 +302,43 @@ async function onNodeAppend(e) {
 main.addEventListener("DOMNodeInserted", onNodeAppend);
 
 dequeueMessages();
+
+async function mimiApi(message) {
+    const params = message.match(/\w+|"[^"]+"/g);
+    const text0 = params[0]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '');
+    const text1 = params[1]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '');
+    const response = await jsonFetch('https://api.imgflip.com/get_memes');
+    if (response == null)
+    	return null;
+
+    const memes = response.data.memes;
+    const entry = memes[Math.random() * memes.length | 0];
+    const settings = {
+        method: 'POST',
+        headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `template_id=${entry.id}&username=PatrickBot&password=8WaHj#x3Aq1xy*7qn&text0=${text0}&text1=${text1}`
+    };
+    const captionData = await jsonFetch('https://api.imgflip.com/caption_image', settings);
+    return captionData.data.url;
+}
+
+async function jsonFetch(url, settings) {
+    try {
+        const response = await fetch(url, settings);
+        const data = await response.json();
+        return data;
+    } catch (e) {
+        console.log(e);
+        return null;
+    }
+}
+
+String.prototype.sanitize = function(keyword) {
+	return this.replace(keyword, '').trim();
+}
 
 function toRandomCase(text) {
     if (text == null|| text == undefined)
