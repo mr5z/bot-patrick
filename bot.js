@@ -304,9 +304,9 @@ main.addEventListener("DOMNodeInserted", onNodeAppend);
 dequeueMessages();
 
 async function mimiApi(message) {
-    const params = message.match(/\w+|"[^"]+"/g);
-    const text0 = params[0]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '');
-    const text1 = params[1]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '');
+    const params = message.match(/\w+|"[^"]+"/g) || [];
+    const text0 = params[0]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '') || '';
+    const text1 = params[1]?.replace(/^\"+|\"+$/g, '').replace(/^\'+|\'+$/g, '') || '';
     const response = await jsonFetch('https://api.imgflip.com/get_memes');
     if (response == null)
     	return null;
@@ -321,8 +321,8 @@ async function mimiApi(message) {
         },
         body: `template_id=${entry.id}&username=PatrickBot&password=8WaHj#x3Aq1xy*7qn&text0=${text0}&text1=${text1}`
     };
-    const captionData = await jsonFetch('https://api.imgflip.com/caption_image', settings);
-    return captionData.data.url;
+    const captionResponse = await jsonFetch('https://api.imgflip.com/caption_image', settings);
+    return captionResponse.success ? captionResponse.data.url : null;
 }
 
 async function jsonFetch(url, settings) {
