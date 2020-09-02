@@ -9,6 +9,7 @@ const learnedThings = JSON.parse((localStorage['learnedThings'] !== undefined &&
 const annoyingUsers = JSON.parse((localStorage['annoyingUsers'] !== undefined && localStorage['annoyingUsers'] != '') ? localStorage['annoyingUsers'] : '[]');
 const joinedRooms = [];
 const voteCastRoom = [];
+const stopCount = [];
 
 const MAX_VOTE_FOR_ROOM = 3;
 const DO_YOU_EVEN_MATH = 'https://i.imgur.com/UBoD276.png';
@@ -16,6 +17,7 @@ const DUMB_FUCK_JUICE = 'https://i.kym-cdn.com/entries/icons/original/000/027/64
 const WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
 const FOUR_O_FOUR = 'https://img.pngio.com/patrick-one-tooth-laugh-animated-gif-gifs-gifsoupcom-little-patrick-star-one-tooth-320_240.gif';
 const FRIDAY = 'https://pbs.twimg.com/media/DDkl-SmXcAYlFnn.jpg';
+const WAAAT = 'https://img-comment-fun.9cache.com/media/am7gNLj/aXPjNYDq_700w_0.jpg';
 const PING_TRIGGERS = ['PatrickStar', 'p3k'];
 
 const messageQueue = [];
@@ -90,11 +92,12 @@ async function onNodeAppend(e) {
             enqueueMessage('hurr durr');
     }
     
-    if (message.includes('stop')) {
+    if (message.includes('stop') && !stopCount[userId]) {
         enqueueMessage(`@${displayName.replaceAll(' ', '')} hammer time!`);
+        stopCount[userId] = true;
     }
 
-    if (PING_TRIGGERS.findIndex(s => message.indexOf(s) > -1) > - 1) {
+    if (PING_TRIGGERS.findIndex(s => message.indexOf(s) > -1) > -1) {
         for(var i = 0;i < PING_TRIGGERS.length; ++i) {
             message = message.replace(PING_TRIGGERS[i], '').trim();
         }
@@ -108,11 +111,11 @@ async function onNodeAppend(e) {
                 message.includes('if') ||
                 message.includes('function') ||
                 message.includes('})()')) {
-                enqueueMessage("I don't think I would like that");
+                enqueueMessage(WAAAT);
             }
             else {
                 try {
-                    var result = eval('"use strict";' + message);
+                    var result = eval('"use strict";window=document=undefined;' + message);
                     if (result != null || result != undefined || result != '')
                         enqueueMessage(result);
                     else
@@ -419,6 +422,7 @@ function tryParseInt(str) {
 
 function safeEval(code) {
     // create our own local versions of window and document with limited functionality
+
     var locals = {
         window: {
         },
@@ -427,7 +431,9 @@ function safeEval(code) {
     };
 
     var that = Object.create(null); // create our own this object for the user code
-    createSandbox(code, that, locals)(); // create a sandbox
+    var sandbox = createSandbox(code, that, locals); // create a sandbox
+
+    return sandbox(); // call the user code in the sandbox
 
     function createSandbox(code, that, locals) {
         var params = []; // the names of local variables
