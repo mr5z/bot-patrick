@@ -18,7 +18,7 @@ const WAT = 'https://i.kym-cdn.com/photos/images/newsfeed/001/260/099/be0.png';
 const FOUR_O_FOUR = 'https://img.pngio.com/patrick-one-tooth-laugh-animated-gif-gifs-gifsoupcom-little-patrick-star-one-tooth-320_240.gif';
 const FRIDAY = 'https://pbs.twimg.com/media/DDkl-SmXcAYlFnn.jpg';
 const WAAAT = 'https://img-comment-fun.9cache.com/media/am7gNLj/aXPjNYDq_700w_0.jpg';
-const PING_TRIGGERS = ['PatrickStar', 'p3k'];
+const PING_TRIGGERS = ['PatrickStar', 'p3k', '@PatrickStar', '@p3k'];
 
 const messageQueue = [];
 
