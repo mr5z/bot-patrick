@@ -93,7 +93,7 @@ async function onNodeAppend(e) {
     }
     
     if (message.includes('stop') && !stopCount[userId]) {
-        enqueueMessage(`@${displayName.replaceAll(' ', '')} hammer time!`);
+        enqueueMessage('hammer time!');
         stopCount[userId] = true;
     }
 
@@ -180,7 +180,7 @@ async function onNodeAppend(e) {
                 annoyingUsers[user] = annoyingUsers[user] || [];
                 annoyingUsers[user][userId] = 1;
                 localStorage['annoyingUsers'] = JSON.stringify(annoyingUsers);
-                enqueueMessage(`@${user.replaceAll(' ', '')} ${displayName} voted you as annoying user.`);
+                enqueueMessage(`${user.replaceAll(' ', '')} ${displayName} voted you as annoying user.`);
             }
             else {
                 enqueueMessage(DUMB_FUCK_JUICE);
