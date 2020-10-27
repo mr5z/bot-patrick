@@ -221,20 +221,26 @@ async function onNodeAppend(e) {
             }
         }
         else if (message.startsWith('mimimized')) {
-        	var response = await jsonFetch('https://official-joke-api.appspot.com/random_joke');
-        	if (response != null) {
-        		var input = `"${response.setup}" "${response.punchline}"`;
-        		var mimiResponse = await mimiApi(input);
-        		if (mimiResponse != null) {
-        			enqueueMessage(mimiResponse);
-        		}
-        		else {
-        			enqueueMessage(FOUR_O_FOUR);
-        		}
-        	}
-        	else {
-        		enqueueMessage(FOUR_O_FOUR);
-        	}
+		try {
+			var response = await jsonFetch('https://official-joke-api.appspot.com/random_joke');
+			if (response != null) {
+				var input = `"${response.setup}" "${response.punchline}"`;
+				var mimiResponse = await mimiApi(input);
+				if (mimiResponse != null) {
+					enqueueMessage(mimiResponse);
+				}
+				else {
+					enqueueMessage(FOUR_O_FOUR);
+				}
+			}
+			else {
+				enqueueMessage(FOUR_O_FOUR);
+			}
+		}
+		catch (e) {
+			console.log(e);
+			enqueueMessage(FOUR_O_FOUR);
+		}
         }
         else if (message.startsWith('mimi')) {
             message = message.sanitize('mimi');
